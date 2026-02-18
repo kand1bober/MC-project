@@ -1,4 +1,4 @@
-// // #include <Arduino.h>
+// #include <Arduino.h>
 // #include <U8g2lib.h>
 
 // #include "interrupts.h"
@@ -140,41 +140,48 @@
 // };
 
 // volatile bool to_display = false;
+// volatile bool display_needs_update = false;  // флаг для перерисовки
 
-// void display(const uint8_t* bitmap) {
-//     // u8g2.firstPage();
-//     // do {
-//     //     if (to_display) {
-//     //         u8g2.setFont(u8g2_font_ncenB14_tr);
-//     //         u8g2.drawXBMP(0, 0, 128, 64, bitmap);
+// void display_current() {
+//     PORTD |= (1 << PD5);
+//     _delay_ms(50);
+//     PORTD &= ~(1 << PD5);
 
-//     //         PORTD |= (1 << PORTD5); // Установить 5-й бит PORTD в 1
-//     //     }
-//     //     else {
-//     //         u8g2.drawXBMP(0, 0, 128, 64, kaneki_eyes_1);
-//     //         PORTD &= ~(1 << PORTD5); // Установить 5-й бит PORTD в 0
-//     //     }
-//     // } while (u8g2.nextPage());
+//     u8g2.firstPage();
+//     do {
+//         if (to_display) {
+//             u8g2.drawXBMP(0, 0, 128, 64, kaneki_eyes_2);
+//             PORTD |= (1 << PD5);
+//         } else {
+//             u8g2.drawXBMP(0, 0, 128, 64, kaneki_eyes_1);
+//             PORTD &= ~(1 << PD5);
+//         }
+//     } while (u8g2.nextPage());
 
-//     if (to_display) {  // Кнопка нажата (0)
-//         PORTD |= (1 << PORTD5);    // LED ON
-//     } else {
-//         PORTD &= ~(1 << PD5);     // LED OFF
-//     }
+//     // if (to_display) {
+//     //     PORTD |= (1 << PD5);
+//     // } else {
+//     //     PORTD &= ~(1 << PD5);
+//     // }
 // }
 
 
 // int main() {
-//     // setup();
+//     DDRD |= (1 << PD5);
 
-//     // u8g2.begin();  
-//     DDRD |= (1 << PD5);  // PD5 как выход (светодиод)
+//     PORTD |= (1 << PD5);
+//     _delay_ms(100);
+//     PORTD &= ~(1 << PD5);
+
+//     u8g2.begin();  // ← обязательно!
 
 //     init_interrupts();
+    
+//     while(1) {
+//         if (!display_needs_update) continue;
+//         display_needs_update = false;
 
-//     while (1) {
-//         display(kaneki_eyes_2);
+//         display_current();
+//         // можно добавить небольшой delay для экономии энергии
 //     }
-
-//     return 0;
 // }

@@ -1,28 +1,21 @@
-#include "interrupts.h"
+// #include "interrupts.h"
 
-void init_interrupts(void) {
-    // PD2 (INT0) как вход с подтяжкой
-    DDRD &= ~(1 << PD2);
-    PORTD |= (1 << PD2);
-    
-    // Настройка режима срабатывания
-    EICRA |= (1 << ISC01) | (1 << ISC00);  // RISING edge
-    // EICRA |= (1 << ISC01);                // FALLING edge
-    // EICRA |= (1 << ISC01) | (1 << ISC00); // RISING
-    // EICRA |= (1 << ISC01);                // FALLING
-    // EICRA |= (1 << ISC00);                // CHANGE
-    // EICRA &= ~((1 << ISC01) | (1 << ISC00)); // LOW level
-    
-    // Разрешить прерывание INT0
-    EIMSK |= (1 << INT0);
-    
-    // Глобально разрешить прерывания
-    sei();
-}
+// extern volatile bool to_display;
+// extern volatile bool display_needs_update;
 
-// Обработчик прерывания INT0
-ISR(INT0_vect) {
-    extern bool to_display;
+// void init_interrupts(void) {
+//     // PD2 (INT0) as an input
+//     DDRD &= ~(1 << PD2);
+//     PORTD |= (1 << PD2);
+    
+//     EICRA |= (1 << ISC01) | (1 << ISC00);  // RISING edge
+//     EIMSK |= (1 << INT0); // allow INT0
+    
+//     sei(); // globally allow interrupts
+// }
 
-    to_display = !to_display;
-}
+// // INT0 interrupt handler
+// ISR(INT0_vect) {
+//     to_display = !to_display;
+//     display_needs_update = true;  // запросить обновление дисплея
+// }

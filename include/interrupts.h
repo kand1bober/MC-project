@@ -1,6 +1,6 @@
-#pragma once
+// #pragma once
 
-#include <avr/io.h>
-#include <avr/interrupt.h>
-
-void init_interrupts(void);
+// #include <avr/io.h>
+// #include <avr/interrupt.h>
+        
+// void init_interrupts(void);
