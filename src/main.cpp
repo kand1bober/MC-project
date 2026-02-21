@@ -149,7 +149,7 @@ void display_current() {
             u8g2.drawXBMP(0, 0, 128, 64, kaneki_eyes_2);
             PORTD |= (1 << PD5);
         } else {
-            // u8g2.drawXBMP(0, 0, 128, 64, kaneki_eyes_1);
+            u8g2.drawXBMP(0, 0, 128, 64, kaneki_eyes_1);
             PORTD &= ~(1 << PD5);
         }
     } while (u8g2.nextPage());
@@ -159,8 +159,13 @@ void display_current() {
 int main() {
     init();
 
+    CLKPR = (1 << CLKPCE);   // разрешить запись в CLKPR
+    CLKPR = 0;                // установить делитель = 1 (без деления)
+  
+
     DDRD |= (1 << PD5);
     u8g2.begin();
+    u8g2.setBusClock(800000);  // или даже 800000 (если повезёт)
 
     init_interrupts();
     
