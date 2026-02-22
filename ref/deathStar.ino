@@ -106,7 +106,7 @@ void loop() {
       shotTimerStarted = 1;
     }
     currentTime = millis();
-
+    
     // Level progression every 50 seconds
     if ((currentTime - levelTime) > 50000) {
       levelTime = currentTime;

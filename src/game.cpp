@@ -31,33 +31,67 @@ volatile bool display_needs_update = false;
 // flags for buttons(like on dualshock)
 volatile bool button_up = false; 
 volatile bool button_down = false; 
+volatile bool button_left = false;
+volatile bool button_right = false;
 volatile bool button_cross = false;
 
-game_t::display() {
-    monitor.firstPage();
-    do {
-        if (monitor) {
-            u8g2.drawXBMP(0, 0, 128, 64, kaneki_eyes_2);
-            PORTD |= (1 << PD5);
-        } else {
-            monitor.drawXBMP(0, 0, 128, 64, kaneki_eyes_1);
-            PORTD &= ~(1 << PD5);
-        }
-    } while (monitor.nextPage());
+void game_t::read_buttons() {
+    uint8_t oldSREG = SREG;
+    cli();
+
+    // crit section
+    if (button_up) { buttons_vector.up = true; }
+    if (button_down) { buttons_vector.down = true; }
+    if (button_left) { buttons_vector.left = true; }
+    if (button_right) { buttons_vector.right = true; }
+    if (button_cross) { buttons_vector.cross = true; }
+
+    SREG = oldSREG;
 }
 
-game_t::update_state() {
+void game_t::draw_object(object_t& obj) {
+    monitor.drawCircle(obj.x, obj.y, 3);
+}
+
+// make state for current frame of the game
+void game_t::update_state() {
+    monitor.clearBuffer(); // clear full frame
     
+    // draw stars
+    for (size_t i = 0; i < sizeof(stars)/sizeof(stars[0]); i++) {
+        monitor.drawPixel(stars[i][0], stars[i][1]);
+    }
+
+    if (buttons_vector.up) {
+        buttons_vector.up = false;
+        player.y -= 1;
+    }
+    if (buttons_vector.down) {
+        buttons_vector.down = false;
+        player.y += 1;
+    }
+    if (buttons_vector.left) {
+        buttons_vector.left = false;
+        player.x -= 1;
+    }
+    if (buttons_vector.right) {
+        buttons_vector.right = false;
+        player.x += 1;
+    }
+
+    draw_object(player);
+
+    monitor.sendBuffer(); // draw full frame
 }
 
 int main() {
     init_controller();
     init_pins_and_interrupts();
     
-    game_t game();
+    game_t game{};
 
     while(1) {
+        game.read_buttons();
         game.update_state();
-        game.display();
     }
 }
