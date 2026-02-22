@@ -40,48 +40,59 @@ void game_t::read_buttons() {
     cli();
 
     // crit section
-    if (button_up) { buttons_vector.up = true; }
-    if (button_down) { buttons_vector.down = true; }
-    if (button_left) { buttons_vector.left = true; }
-    if (button_right) { buttons_vector.right = true; }
-    if (button_cross) { buttons_vector.cross = true; }
+    if (button_up) { buttons_vector_.up = true; }
+    if (button_down) { buttons_vector_.down = true; }
+    if (button_left) { buttons_vector_.left = true; }
+    if (button_right) { buttons_vector_.right = true; }
+    if (button_cross) { buttons_vector_.cross = true; }
 
     SREG = oldSREG;
 }
 
-void game_t::draw_object(object_t& obj) {
-    monitor.drawCircle(obj.x, obj.y, 3);
+void game_t::draw_object(entity_t& obj) {
+    // monitor.drawCircle(obj.x, obj.y, 3);
+
+    monitor_.drawXBMP(obj.x_,
+                      obj.y_,
+                      obj.bitmap.w_, 
+                      obj.bitmap.h_,
+                      obj.bitmap.bits_);
 }
 
 // make state for current frame of the game
 void game_t::update_state() {
-    monitor.clearBuffer(); // clear full frame
+    monitor_.clearBuffer(); // clear full frame
     
     // draw stars
     for (size_t i = 0; i < sizeof(stars)/sizeof(stars[0]); i++) {
-        monitor.drawPixel(stars[i][0], stars[i][1]);
+        monitor_.drawPixel(stars[i][0], stars[i][1]);
     }
 
-    if (buttons_vector.up) {
-        buttons_vector.up = false;
-        player.y -= 1;
+    // set player position
+    if (buttons_vector_.up) {
+        buttons_vector_.up = false;
+        player_.y_ -= 1;
     }
-    if (buttons_vector.down) {
-        buttons_vector.down = false;
-        player.y += 1;
+    if (buttons_vector_.down) {
+        buttons_vector_.down = false;
+        player_.y_ += 1;
     }
-    if (buttons_vector.left) {
-        buttons_vector.left = false;
-        player.x -= 1;
+    if (buttons_vector_.left) {
+        buttons_vector_.left = false;
+        player_.x_ -= 1;
     }
-    if (buttons_vector.right) {
-        buttons_vector.right = false;
-        player.x += 1;
+    if (buttons_vector_.right) {
+        buttons_vector_.right = false;
+        player_.x_ += 1;
     }
+    if (buttons_vector_.cross) {
+        buttons_vector_.cross = false;
+        // создание обьекта пули
+    }
+    draw_object(player_);
+    draw_object(enemy_);    
 
-    draw_object(player);
-
-    monitor.sendBuffer(); // draw full frame
+    monitor_.sendBuffer(); // draw full frame
 }
 
 int main() {

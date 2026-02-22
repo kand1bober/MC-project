@@ -79,25 +79,6 @@ void loop() {
   if (gameOver == 0) {
     display.clearDisplay();
 
-    // Draw random stars (just for decoration)
-    display.drawPixel(50, 30, 1);
-    display.drawPixel(30, 17, 1);
-    display.drawPixel(60, 18, 1);
-    display.drawPixel(55, 16, 1);
-    display.drawPixel(25, 43, 1);
-    display.drawPixel(100, 43, 1);
-    display.drawPixel(117, 52, 1);
-    display.drawPixel(14, 49, 1);
-    display.drawPixel(24, 24, 1);
-    display.drawPixel(78, 36, 1);
-    display.drawPixel(80, 57, 1);
-    display.drawPixel(107, 11, 1);
-    display.drawPixel(150, 11, 1);
-    display.drawPixel(5, 5, 1);
-    display.drawPixel(8, 7, 1);
-    display.drawPixel(70, 12, 1);
-    display.drawPixel(10, 56, 1);
-    display.drawPixel(70, 25, 1);
 
     // Random shot timer logic
     if (shotTimerStarted == 0) {
@@ -106,7 +87,7 @@ void loop() {
       shotTimerStarted = 1;
     }
     currentTime = millis();
-    
+
     // Level progression every 50 seconds
     if ((currentTime - levelTime) > 50000) {
       levelTime = currentTime;
