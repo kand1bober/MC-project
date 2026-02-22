@@ -59,6 +59,21 @@ void game_t::draw_object(entity_t& obj) {
                       obj.bitmap.bits_);
 }
 
+void game_t::shoot(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t vx, uint8_t vy) {
+    for (auto &b : bullets_) {
+        if (!b.active_) {
+            b.x_ = x;
+            b.y_ = y;
+            b.w_ = w;
+            b.h_ = h;
+            b.vx_ = vx;
+            b.vy_ = vy;
+            b.active_ = true;
+            return;
+        }
+    }
+}
+
 // make state for current frame of the game
 void game_t::update_state() {
     monitor_.clearBuffer(); // clear full frame
@@ -87,10 +102,22 @@ void game_t::update_state() {
     }
     if (buttons_vector_.cross) {
         buttons_vector_.cross = false;
-        // создание обьекта пули
+        shoot(player_.x_, player_.y_, 3, 1, 7, 0);
     }
     draw_object(player_);
     draw_object(enemy_);    
+    for (auto &b : bullets_) {
+        if (b.active_) {
+            if (b.x_ <= 128 && b.y_ <= 64) {
+                monitor_.drawBox(b.x_, b.y_, b.w_, b.h_);
+                b.x_ += b.vx_ * 1;
+                // b.y = += b.vy_ * 1; 
+            }
+            else {
+                b.active_ = false;
+            }
+        }
+    }
 
     monitor_.sendBuffer(); // draw full frame
 }

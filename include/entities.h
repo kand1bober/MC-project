@@ -14,5 +14,5 @@ struct bitmap_t {
 extern const uint8_t kPlayerBits[];
 extern const uint8_t kEnemyBits[];
 
-constexpr int kStarsAmount = 18;
+constexpr int kStarsAmount = 17;
 extern const uint8_t stars[kStarsAmount][2];

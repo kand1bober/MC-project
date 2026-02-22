@@ -45,8 +45,8 @@ ISR(INT0_vect) {
 
 // INT1 interrupt handler
 ISR(INT1_vect) {
-    // button_right = true;
-    button_right = !button_right;
+    // button_cross = true;
+    button_cross = !button_cross;
 }
 
 // PCINT interrupt handler
