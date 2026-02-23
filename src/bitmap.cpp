@@ -1,4 +1,26 @@
-#include "entities.h"
+#include "bitmap.h"
+
+void draw_grid(U8G2 &u) {
+    const int W = 128;
+    const int H = 64;
+
+    const int horizonY = 18;   
+    const int vanX = W / 2;
+
+    u.drawHLine(0, horizonY, W);
+
+    int y = H - 1;
+    int step = 2;
+    while (y > horizonY) {
+        u.drawHLine(0, y, W);
+        y -= step;
+        if (step < 10) step++; 
+    }
+
+    for (int x0 = 0; x0 <= W; x0 += 10) {
+        u.drawLine(x0, H - 1, vanX, horizonY);
+    }
+}
 
 const uint8_t stars[kStarsAmount][2] = {
     {50, 30},
@@ -42,11 +64,6 @@ const uint8_t PROGMEM kEnemyBits[] = {
     0xC6,
     0xC4,
     0x00
-};
-
-// bullet
-const uint8_t PROGMEM bullet[] = {
-    0x07  // 00000111
 };
 
 // explosions 15x15, center = (7, 7)

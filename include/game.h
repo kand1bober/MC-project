@@ -1,6 +1,6 @@
 #include <U8g2lib.h>
 
-#include "entities.h"
+#include "bitmap.h"
 
 #pragma once
 
@@ -62,20 +62,29 @@ public:
     {}
 };
 
+enum game_state_t {
+    kRunning,
+    kPause,
+    kHlt,
+};
+
 class game_t {
     U8G2_SSD1306_128X64_NONAME_F_HW_I2C monitor_;
     buttons_vector_t buttons_vector_; 
 
+public:
+    game_state_t game_state_;
     entity_t player_;
     entity_t enemy_; 
-public:
+
     static constexpr uint8_t kMaxBullets = 8;
     bullet_t bullets_[kMaxBullets]; // craeate static array of possible bullets
 
-    game_t() : 
+    game_t() :
         monitor_(U8G2_R0, U8X8_PIN_NONE), 
-        player_(0, 28, 0, 0, kPlayerBits, 8, 8), 
-        enemy_(120, 28, 0, 0, kEnemyBits, 8, 8)
+        player_(0, 28, 8, 0, kPlayerBits, 8, 8), 
+        enemy_(120, 28, 7, 7, kEnemyBits, 8, 8), 
+        game_state_(kHlt)
     {
         monitor_.begin();
         monitor_.setBusClock(800000);
@@ -90,7 +99,14 @@ public:
                uint8_t vx, 
                uint8_t vy);
 
-    inline void draw_object(entity_t& entity);
+    // hitbox size can be different from bitmap size
+    inline void draw_entity(entity_t& entity); 
+
+    inline void draw_bitmap(uint8_t x, uint8_t y, bitmap_t& bitmap);
+
+    inline void update_bullets();
+
+    inline void update_collisions(bullet_t& bullet);
 
     inline void update_state();
 };
