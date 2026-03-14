@@ -55,16 +55,16 @@ const uint8_t PROGMEM kPlayerBits[] = {
     0x08, 0x00
 };
 
-// spider, 8x8
+// spider, 11x8
 const uint8_t PROGMEM kEnemyBits[] = {
-    0x3C,
-    0x7E,
-    0xFF,
-    0xD3,
-    0xFF,
-    0xC6,
-    0xC4,
-    0x00
+    0b00000100, 0b00000001,
+    0b10001000, 0b00000000,
+    0b11111100, 0b00000001,
+    0b01110110, 0b00000011,
+    0b11111111, 0b00000111,
+    0b11111101, 0b00000101,
+    0b00000101, 0b00000101,
+    0b11011000, 0b00000000
 };
 
 // explosions 15x15, center = (7, 7)
