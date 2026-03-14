@@ -20,8 +20,8 @@ public:
     uint8_t vx_, vy_;
     bool active_;
 
-    bullet_t()
-      : x_(0), y_(0),
+    bullet_t() : 
+        x_(0), y_(0),
         w_(0), h_(0),
         vx_(0), vy_(0),
         active_(false)
@@ -41,9 +41,11 @@ public:
 
 class entity_t {
 public:
-    uint8_t x_, y_;
-    uint8_t w_, h_; // hitbox != bitmap size
+    uint8_t x_, y_; // position
+    uint8_t w_, h_; // hitbox (hitbox != bitmap size)
     const bitmap_t bitmap;
+
+    uint8_t hp_; // health
     
     // ctor
     entity_t(uint8_t par_x, 
@@ -53,12 +55,15 @@ public:
 
              const uint8_t* PROGMEM bits,
              uint8_t bits_w, 
-             uint8_t bits_h) :
+             uint8_t bits_h,
+
+             uint8_t hp) :
         x_(par_x),
         y_(par_y),
         w_(par_w),
         h_(par_h), 
-        bitmap(bits, bits_w, bits_h) 
+        bitmap(bits, bits_w, bits_h), 
+        hp_(hp) 
     {}
 };
 
@@ -80,24 +85,47 @@ public:
     static constexpr uint8_t kMaxBullets = 8;
     bullet_t bullets_[kMaxBullets]; // craeate static array of possible bullets
 
+// --------- Methods ---------
     game_t() :
         monitor_(U8G2_R0, U8X8_PIN_NONE), 
-        player_(0, 28, 10, 9, kPlayerBits, 10, 9), 
-        enemy_(128 - 11 - 1, 32 - 8/2, 11, 8, kEnemyBits, 11, 8), 
+        player_(0, 28, 
+                10, 9, 
+                kPlayerBits, 
+                10, 9, 
+                3), 
+        enemy_(128 - 11 - 1, 32 - 8/2, 
+               11, 8, 
+               kEnemyBits, 
+               11, 8, 
+               5), 
         game_state_(kHlt)
     {
         monitor_.begin();
         monitor_.setBusClock(800000);
     }
 
+    void init_game_state() {
+        player_.x_ = 0;
+        player_.y_ = 28;
+        player_.hp_ = 3;
+
+        enemy_.x_ = 128 - 11 - 1;
+        enemy_.y_ = 32 - 8/2;
+        enemy_.hp_ = 5;
+    }
+
+    inline void play();
+
     inline void read_buttons();
 
-    void shoot(uint8_t x, 
-               uint8_t y, 
-               uint8_t w, 
-               uint8_t h, 
-               uint8_t vx, 
-               uint8_t vy);
+    inline void update_pause_state();
+
+    inline void shoot(uint8_t x, 
+                      uint8_t y, 
+                      uint8_t w, 
+                      uint8_t h, 
+                      uint8_t vx, 
+                      uint8_t vy);
 
     // hitbox size can be different from bitmap size
     inline void draw_entity(entity_t& entity); 
