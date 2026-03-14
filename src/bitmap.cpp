@@ -1,25 +1,12 @@
 #include "bitmap.h"
 
-void draw_grid(U8G2 &u) {
-    const int W = 128;
-    const int H = 64;
-
-    const int horizonY = 18;   
-    const int vanX = W / 2;
-
-    u.drawHLine(0, horizonY, W);
-
-    int y = H - 1;
-    int step = 2;
-    while (y > horizonY) {
-        u.drawHLine(0, y, W);
-        y -= step;
-        if (step < 10) step++; 
-    }
-
-    for (int x0 = 0; x0 <= W; x0 += 10) {
-        u.drawLine(x0, H - 1, vanX, horizonY);
-    }
+void draw_invitation(U8G2 &u) {
+    u.setFont(u8g2_font_celibatemonk_tr);
+    u.drawStr(25, 24, "Space kill");
+    u.setFont(u8g2_font_tenstamps_mr);
+    u.drawStr(25, 60, "x");
+    u.setFont(u8g2_font_tenthinnerguys_tr);
+    u.drawStr(30, 60, "   to start");
 }
 
 const uint8_t stars[kStarsAmount][2] = {

@@ -98,9 +98,7 @@ void game_t::update_bullets() {
 // update kHlt / kRunning / kPause
 void game_t::update_pause_state() {
     // Draw game icon and invitation to play
-    draw_grid(monitor_);
-    monitor_.setFont(u8g2_font_6x10_tf);
-    monitor_.drawStr(5, 12, "Space kill");
+    draw_invitation(monitor_);
 
     if (buttons_vector_.cross) {
         buttons_vector_.cross = false;

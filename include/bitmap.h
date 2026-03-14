@@ -2,7 +2,7 @@
 
 #pragma once
 
-void draw_grid(U8G2 &u);
+void draw_invitation(U8G2 &u);
 
 struct bitmap_t {
     const uint8_t* bits_;   // points to XBM array in PROGMEM
