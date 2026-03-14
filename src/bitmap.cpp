@@ -1,6 +1,7 @@
 #include "bitmap.h"
 
 void draw_invitation(U8G2 &u) {
+    u.clearBuffer();
     u.setFont(u8g2_font_celibatemonk_tr);
     u.drawStr(25, 24, "Space kill");
     u.setFont(u8g2_font_tenstamps_mr);

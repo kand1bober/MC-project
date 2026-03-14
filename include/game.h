@@ -17,7 +17,7 @@ class bullet_t {
 public:
     uint8_t x_, y_;
     uint8_t w_, h_;
-    uint8_t vx_, vy_;
+    int8_t vx_, vy_;
     bool active_;
 
     bullet_t() : 
@@ -46,7 +46,12 @@ public:
     const bitmap_t bitmap;
 
     uint8_t hp_; // health
-    
+
+    uint8_t y_target_; // y pos, to which entity is moving
+    int8_t vx_, vy_; // velocity
+
+    uint8_t y_shoot_target_; // y pos, where entity shoots
+
     // ctor
     entity_t(uint8_t par_x, 
              uint8_t par_y, 
@@ -57,13 +62,19 @@ public:
              uint8_t bits_w, 
              uint8_t bits_h,
 
-             uint8_t hp) :
+             uint8_t hp, 
+             uint8_t y_shoot_target) :
         x_(par_x),
         y_(par_y),
         w_(par_w),
         h_(par_h), 
         bitmap(bits, bits_w, bits_h), 
-        hp_(hp) 
+        hp_(hp), 
+
+        y_target_(par_y),
+        y_shoot_target_(y_shoot_target),
+        vx_(0), 
+        vy_(0)
     {}
 };
 
@@ -74,6 +85,8 @@ enum game_state_t {
 };
 
 class game_t {
+    const uint8_t display_w = 128;
+    const uint8_t display_h = 64;
     U8G2_SSD1306_128X64_NONAME_F_HW_I2C monitor_;
     buttons_vector_t buttons_vector_; 
 
@@ -92,12 +105,14 @@ public:
                 10, 9, 
                 kPlayerBits, 
                 10, 9, 
-                3), 
+                3, 
+                0), 
         enemy_(128 - 11 - 1, 32 - 8/2, 
                11, 8, 
                kEnemyBits, 
                11, 8, 
-               5), 
+               5, 
+               rand() % (display_h - 8 + 1)), 
         game_state_(kHlt)
     {
         monitor_.begin();
@@ -124,8 +139,8 @@ public:
                       uint8_t y, 
                       uint8_t w, 
                       uint8_t h, 
-                      uint8_t vx, 
-                      uint8_t vy);
+                      int8_t vx, 
+                      int8_t vy);
 
     // hitbox size can be different from bitmap size
     inline void draw_entity(entity_t& entity); 
@@ -135,6 +150,10 @@ public:
     inline void update_bullets();
 
     inline void update_collisions(bullet_t& bullet);
+
+    inline void update_player_pos();
+
+    inline void update_enemy_state(entity_t&);
 
     inline void update_state();
 };
