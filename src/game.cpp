@@ -152,7 +152,10 @@ void game_t::update_state() {
         buttons_vector_.cross = false;
         button_cross = false;
 
-        shoot(player_.x_, player_.y_, 3, 1, 10, 0);
+        shoot(player_.x_ + player_.bitmap.w_, 
+              player_.y_ + player_.bitmap.h_/2, 
+              3, 1, 
+              10, 0);
     }
     draw_entity(player_);
     draw_entity(enemy_);    

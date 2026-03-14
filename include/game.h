@@ -82,7 +82,7 @@ public:
 
     game_t() :
         monitor_(U8G2_R0, U8X8_PIN_NONE), 
-        player_(0, 28, 8, 0, kPlayerBits, 8, 8), 
+        player_(0, 28, 10, 9, kPlayerBits, 10, 9), 
         enemy_(120, 28, 7, 7, kEnemyBits, 8, 8), 
         game_state_(kHlt)
     {
