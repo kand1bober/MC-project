@@ -83,25 +83,48 @@ void game_t::shoot(uint8_t x, uint8_t y, uint8_t w, uint8_t h, int8_t vx, int8_t
 // update current bullet collisions with game units
 void game_t::update_collisions(bullet_t &bullet)
 {
-    if (bullet.x_ + bullet.w_ >= enemy_.x_ &&
-        bullet.x_ + bullet.w_ <= enemy_.x_ + enemy_.w_ &&
-        bullet.y_ >= enemy_.y_ &&
-        bullet.y_ <= enemy_.y_ + enemy_.h_)
-    {
-
-        // draw explosion
-        bitmap_t explosion(explosion_r7, 15, 15);
-        draw_bitmap(enemy_.x_ - 3,
-                    enemy_.y_ - 3,
-                    explosion);
-
-        // remove bullet
-        bullet.active_ = false;
-
-        if (--game_t::enemy_.hp_ <= 0)
+    entity_t* entities[] = { &enemy_, &player_ };
+    
+    for (int i = 0; i < sizeof(entities) / sizeof(entities[0]); i++) {
+        entity_t* entity = entities[i];
+        if (bullet.x_ + bullet.w_ >= entity->x_ &&
+            bullet.x_ + bullet.w_ <= entity->x_ + entity->w_ &&
+            bullet.y_ >= entity->y_ &&
+            bullet.y_ <= entity->y_ + entity->h_)
         {
-            // TODO: Animation of winning
-            game_t::game_state_ = game_state_t::kHlt;
+
+            // draw explosion
+            bitmap_t explosion(explosion_r7, 15, 15);
+            draw_bitmap(entity->x_ - 3,
+                        entity->y_ - 3,
+                        explosion);
+
+            // remove bullet
+            bullet.active_ = false;
+
+            if (--(entity->hp_) <= 0)
+            {  
+                const int cycles = 70;
+                char str[16];
+                switch (entity->entity_type_) {
+                    case kPlayer: {
+                        snprintf(str, sizeof(str), "You lost :(");
+                        break;
+                    }
+                    case kEnemy: {
+                        snprintf(str, sizeof(str), "You won :) !!!");
+                        break;
+                    }
+                }
+
+                for (int i = 0; i < cycles; i++) {
+                    game_t::monitor_.setFont(u8g2_font_tenthinnerguys_tr);
+                    game_t::monitor_.drawStr(20, 42, str);
+                    monitor_.sendBuffer(); // draw full frame
+                }
+
+                game_t::game_state_ = game_state_t::kHlt;
+            }
         }
     }
 }
@@ -212,10 +235,10 @@ void game_t::update_enemy_state(entity_t &enemy)
     }
 
     // show velocity
-    game_t::monitor_.setFont(u8g2_font_tenthinnerguys_tr);
-    char str[8];
-    sprintf(str, "V_y= %d", enemy_.vy_);
-    game_t::monitor_.drawStr(15, 60, str);
+    // game_t::monitor_.setFont(u8g2_font_tenthinnerguys_tr);
+    // char str[8];
+    // sprintf(str, "V_y= %d", enemy_.vy_);
+    // game_t::monitor_.drawStr(15, 60, str);
 
     // update shooting
     if (abs(enemy.y_shoot_target_ - enemy.y_ ) < kDiff)
@@ -236,6 +259,15 @@ void game_t::update_enemy_state(entity_t &enemy)
     #undef kDiff
 }
 
+void game_t::update_visual_info_state() {
+    game_t::monitor_.setFont(u8g2_font_tenthinnerguys_tr);
+    game_t::monitor_.drawStr(40, 12, "hp");
+
+    char str[10];
+    snprintf(str, sizeof(str), "    %u : %u", game_t::player_.hp_, game_t::enemy_.hp_);
+    game_t::monitor_.drawStr(40, 12, str);
+}
+
 // make state for current frame of the game
 void game_t::update_state()
 {
@@ -254,6 +286,8 @@ void game_t::update_state()
     draw_entity(enemy_);
 
     update_bullets();
+
+    update_visual_info_state();
 
     monitor_.sendBuffer(); // draw full frame
 }

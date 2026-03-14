@@ -39,8 +39,15 @@ public:
     // {}  
 };
 
+enum entity_type_t {
+    kPlayer,
+    kEnemy,
+};
+
 class entity_t {
 public:
+    entity_type_t entity_type_;
+
     uint8_t x_, y_; // position
     uint8_t w_, h_; // hitbox (hitbox != bitmap size)
     const bitmap_t bitmap;
@@ -53,7 +60,8 @@ public:
     uint8_t y_shoot_target_; // y pos, where entity shoots
 
     // ctor
-    entity_t(uint8_t par_x, 
+    entity_t(entity_type_t entity_type, 
+             uint8_t par_x, 
              uint8_t par_y, 
              uint8_t par_w, 
              uint8_t par_h,
@@ -64,6 +72,8 @@ public:
 
              uint8_t hp, 
              uint8_t y_shoot_target) :
+        entity_type_(entity_type),
+
         x_(par_x),
         y_(par_y),
         w_(par_w),
@@ -101,13 +111,15 @@ public:
 // --------- Methods ---------
     game_t() :
         monitor_(U8G2_R0, U8X8_PIN_NONE), 
-        player_(0, 28, 
+        player_(kPlayer, 
+                0, 28, 
                 10, 9, 
                 kPlayerBits, 
                 10, 9, 
-                3, 
+                1, 
                 0), 
-        enemy_(128 - 11 - 1, 32 - 8/2, 
+        enemy_(kEnemy, 
+               128 - 11 - 1, 32 - 8/2, 
                11, 8, 
                kEnemyBits, 
                11, 8, 
@@ -122,7 +134,7 @@ public:
     void init_game_state() {
         player_.x_ = 0;
         player_.y_ = 28;
-        player_.hp_ = 3;
+        player_.hp_ = 1;
 
         enemy_.x_ = 128 - 11 - 1;
         enemy_.y_ = 32 - 8/2;
@@ -154,6 +166,8 @@ public:
     inline void update_player_pos();
 
     inline void update_enemy_state(entity_t&);
+
+    inline void update_visual_info_state();
 
     inline void update_state();
 };
