@@ -80,6 +80,11 @@ void game_t::shoot(uint8_t x, uint8_t y, uint8_t w, uint8_t h, int8_t vx, int8_t
     }
 }
 
+void game_t::end_game() {
+    game_t::game_state_ = game_state_t::kHlt;
+    game_t::gameTimer.reset();
+}
+
 // update current bullet collisions with game units
 void game_t::update_collisions(bullet_t &bullet)
 {
@@ -123,7 +128,7 @@ void game_t::update_collisions(bullet_t &bullet)
                     monitor_.sendBuffer(); // draw full frame
                 }
 
-                game_t::game_state_ = game_state_t::kHlt;
+                end_game();
             }
         }
     }
@@ -209,7 +214,7 @@ void game_t::update_enemy_state(entity_t &enemy)
 {
     #define kDiff 2
 
-    // update of position
+    // update y position
     if (enemy.y_ == enemy.y_target_ ||
         (enemy.y_ > enemy.y_target_ && enemy.vy_ > 0) ||
         (enemy.y_ < enemy.y_target_ && enemy.vy_ < 0)
@@ -235,10 +240,10 @@ void game_t::update_enemy_state(entity_t &enemy)
     }
 
     // show velocity
-    // game_t::monitor_.setFont(u8g2_font_tenthinnerguys_tr);
-    // char str[8];
-    // sprintf(str, "V_y= %d", enemy_.vy_);
-    // game_t::monitor_.drawStr(15, 60, str);
+    game_t::monitor_.setFont(u8g2_font_tenthinnerguys_tr);
+    char str[8];
+    sprintf(str, "x= %d", enemy_.x_);
+    game_t::monitor_.drawStr(15, 60, str);
 
     // update shooting
     if (abs(enemy.y_shoot_target_ - enemy.y_ ) < kDiff)
@@ -256,21 +261,36 @@ void game_t::update_enemy_state(entity_t &enemy)
         enemy.y_shoot_target_ = next_y_shoot_target;
     }
 
+    // update x position
+    static uint8_t old_secs = 0;
+    uint8_t new_secs = game_t::gameTimer.getSeconds();
+    if (new_secs != old_secs && !(new_secs % 10)) {
+        old_secs = new_secs;
+        enemy.x_ -= enemy.bitmap.w_;
+    }
+
     #undef kDiff
 }
 
 void game_t::update_visual_info_state() {
+
+    // show hp
     game_t::monitor_.setFont(u8g2_font_tenthinnerguys_tr);
     game_t::monitor_.drawStr(40, 12, "hp");
 
     char str[10];
     snprintf(str, sizeof(str), "    %u : %u", game_t::player_.hp_, game_t::enemy_.hp_);
     game_t::monitor_.drawStr(40, 12, str);
+
+    // show timer
+    gameTimer.display(game_t::monitor_, 49, 63);
 }
 
 // make state for current frame of the game
 void game_t::update_state()
 {
+    game_t::gameTimer.update(); // update of timer, should be done every frame
+
     monitor_.clearBuffer(); // clear full frame
 
     // draw stars
@@ -311,11 +331,6 @@ void game_t::play()
 
 int main()
 {
-    init_controller();
-    init_pins_and_interrupts();
-
-    // srand((unsigned int)time(NULL)); // works better without this line
-
     game_t game{};
     game.play();
 }

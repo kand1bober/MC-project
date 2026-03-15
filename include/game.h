@@ -1,6 +1,7 @@
 #include <U8g2lib.h>
 
 #include "bitmap.h"
+#include "timer.h"
 
 #pragma once
 
@@ -99,11 +100,12 @@ class game_t {
     const uint8_t display_h = 64;
     U8G2_SSD1306_128X64_NONAME_F_HW_I2C monitor_;
     buttons_vector_t buttons_vector_; 
+    GameTimer gameTimer;
 
 public:
     game_state_t game_state_;
     entity_t player_;
-    entity_t enemy_; 
+    entity_t enemy_;
 
     static constexpr uint8_t kMaxBullets = 8;
     bullet_t bullets_[kMaxBullets]; // craeate static array of possible bullets
@@ -127,6 +129,11 @@ public:
                rand() % (display_h - 8 + 1)), 
         game_state_(kHlt)
     {
+        init_controller();
+        init_pins_and_interrupts();
+        gameTimer.init();
+        // srand((unsigned int)time(NULL)); // works better without this line
+        
         monitor_.begin();
         monitor_.setBusClock(800000);
     }
@@ -160,6 +167,8 @@ public:
     inline void draw_bitmap(uint8_t x, uint8_t y, bitmap_t& bitmap);
 
     inline void update_bullets();
+
+    inline void end_game();
 
     inline void update_collisions(bullet_t& bullet);
 
