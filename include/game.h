@@ -150,6 +150,8 @@ public:
 
     inline void play();
 
+    inline void reset_buttons();
+
     inline void read_buttons();
 
     inline void update_pause_state();

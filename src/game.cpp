@@ -7,10 +7,6 @@
 #include "game.h"
 #include "basics.h"
 
-// flags for display
-volatile bool to_display = false;
-volatile bool display_needs_update = false;
-
 // flags for buttons(like on dualshock)
 volatile bool button_up = false;
 volatile bool button_down = false;
@@ -18,30 +14,32 @@ volatile bool button_left = false;
 volatile bool button_right = false;
 volatile bool button_cross = false;
 
+void game_t::reset_buttons() {
+    uint8_t oldSREG = SREG;
+    cli();
+
+    SREG = oldSREG;
+}
+
 void game_t::read_buttons()
 {
     uint8_t oldSREG = SREG;
     cli();
 
     // crit section
-    if (button_up)
-    {
+    if (button_up) {
         buttons_vector_.up = true;
     }
-    if (button_down)
-    {
+    if (button_down) {
         buttons_vector_.down = true;
     }
-    if (button_left)
-    {
+    if (button_left) {
         buttons_vector_.left = true;
     }
-    if (button_right)
-    {
+    if (button_right) {
         buttons_vector_.right = true;
     }
-    if (button_cross)
-    {
+    if (button_cross) {
         buttons_vector_.cross = true;
     }
 
@@ -165,7 +163,6 @@ void game_t::update_pause_state()
     if (buttons_vector_.cross)
     {
         buttons_vector_.cross = false;
-        button_cross = false;
         game_state_ = kRunning;
 
         init_game_state();
@@ -201,8 +198,6 @@ void game_t::update_player_pos()
     if (buttons_vector_.cross)
     {
         buttons_vector_.cross = false;
-        button_cross = false;
-
         shoot(player_.x_ + player_.bitmap.w_,
               player_.y_ + player_.bitmap.h_ / 2,
               3, 1,
@@ -239,11 +234,11 @@ void game_t::update_enemy_state(entity_t &enemy)
         enemy.y_ += enemy.vy_;
     }
 
-    // show velocity
-    game_t::monitor_.setFont(u8g2_font_tenthinnerguys_tr);
-    char str[8];
-    sprintf(str, "x= %d", enemy_.x_);
-    game_t::monitor_.drawStr(15, 60, str);
+    // show info
+    // game_t::monitor_.setFont(u8g2_font_tenthinnerguys_tr);
+    // char str[8];
+    // sprintf(str, "x= %d", enemy_.x_);
+    // game_t::monitor_.drawStr(15, 60, str);
 
     // update shooting
     if (abs(enemy.y_shoot_target_ - enemy.y_ ) < kDiff)
@@ -319,11 +314,13 @@ void game_t::play()
         if (game_state_ == kHlt)
         {
             read_buttons();
+            reset_buttons();
             update_pause_state();
         }
         else if (game_state_ == kRunning)
         {
             read_buttons();
+            reset_buttons();
             update_state();
         }
     }
