@@ -79,28 +79,29 @@ void game_t::shoot(uint8_t x, uint8_t y, uint8_t w, uint8_t h, int8_t vx, int8_t
 }
 
 void game_t::end_game(game_result_t result) {
-    const int cycles = 70;
-    char str1[10];
-    char str2[16];
+    char str[16];
     switch (result) {
         case kDefeat: {
-            snprintf(str1, sizeof(str1), "You lost");
-            snprintf(str2, sizeof(str2), "            :(");
+            snprintf(str, sizeof(str), "You lost :(");
             break;
         }
         case kVictory: {
-            snprintf(str1, sizeof(str1), "You won");
-            snprintf(str2, sizeof(str2), "           :)");
+            snprintf(str, sizeof(str), "You won :)");
             break;
         }
     }
 
-    for (int i = 0; i < cycles; i++) {
-        game_t::monitor_.setFont(u8g2_font_tenthinnerguys_tr);
-        game_t::monitor_.drawStr(20, 42, str1);
-        game_t::monitor_.setFont(u8g2_font_celibatemonk_tr);
-        game_t::monitor_.drawStr(20, 42, str2);
+    const int animation_cycles = 40;
+    game_t::monitor_.setFont(u8g2_font_tenthinnerguys_tr);
+    for (int i = 0; i < animation_cycles; i++) {
+        monitor_.clearBuffer();
+        game_t::monitor_.drawStr(20, i, str);
+        monitor_.sendBuffer(); // draw full frame
+    }
 
+    const int static_cycles = 30;
+    for (int i = 0; i < static_cycles; i++) {
+        game_t::monitor_.drawStr(20, 40, str);
         monitor_.sendBuffer(); // draw full frame
     }
 
