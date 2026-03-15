@@ -45,6 +45,11 @@ enum entity_type_t {
     kEnemy,
 };
 
+enum game_result_t {
+    kVictory,
+    kDefeat,
+};
+
 class entity_t {
 public:
     entity_type_t entity_type_;
@@ -170,7 +175,7 @@ public:
 
     inline void update_bullets();
 
-    inline void end_game();
+    inline void end_game(game_result_t result);
 
     inline void update_collisions(bullet_t& bullet);
 

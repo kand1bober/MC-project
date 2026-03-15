@@ -78,7 +78,32 @@ void game_t::shoot(uint8_t x, uint8_t y, uint8_t w, uint8_t h, int8_t vx, int8_t
     }
 }
 
-void game_t::end_game() {
+void game_t::end_game(game_result_t result) {
+    const int cycles = 70;
+    char str1[10];
+    char str2[16];
+    switch (result) {
+        case kDefeat: {
+            snprintf(str1, sizeof(str1), "You lost");
+            snprintf(str2, sizeof(str2), "            :(");
+            break;
+        }
+        case kVictory: {
+            snprintf(str1, sizeof(str1), "You won");
+            snprintf(str2, sizeof(str2), "           :)");
+            break;
+        }
+    }
+
+    for (int i = 0; i < cycles; i++) {
+        game_t::monitor_.setFont(u8g2_font_tenthinnerguys_tr);
+        game_t::monitor_.drawStr(20, 42, str1);
+        game_t::monitor_.setFont(u8g2_font_celibatemonk_tr);
+        game_t::monitor_.drawStr(20, 42, str2);
+
+        monitor_.sendBuffer(); // draw full frame
+    }
+
     game_t::game_state_ = game_state_t::kHlt;
     game_t::gameTimer.reset();
 }
@@ -107,26 +132,18 @@ void game_t::update_collisions(bullet_t &bullet)
 
             if (--(entity->hp_) <= 0)
             {  
-                const int cycles = 70;
-                char str[16];
+                game_result_t result;
                 switch (entity->entity_type_) {
                     case kPlayer: {
-                        snprintf(str, sizeof(str), "You lost :(");
+                        result = kDefeat;
                         break;
                     }
                     case kEnemy: {
-                        snprintf(str, sizeof(str), "You won :) !!!");
+                        result = kVictory;
                         break;
                     }
                 }
-
-                for (int i = 0; i < cycles; i++) {
-                    game_t::monitor_.setFont(u8g2_font_tenthinnerguys_tr);
-                    game_t::monitor_.drawStr(20, 42, str);
-                    monitor_.sendBuffer(); // draw full frame
-                }
-
-                end_game();
+                end_game(result);
             }
         }
     }
@@ -179,21 +196,25 @@ void game_t::update_player_pos()
     {
         buttons_vector_.up = false;
         player_.y_ -= kSpeed;
+        player_.y_ = player_.y_ % game_t::display_h;
     }
     if (buttons_vector_.down)
     {
         buttons_vector_.down = false;
         player_.y_ += kSpeed;
+        player_.y_ = player_.y_ % game_t::display_h;
     }
     if (buttons_vector_.left)
     {
         buttons_vector_.left = false;
         player_.x_ -= kSpeed;
+        player_.x_ = player_.x_ % game_t::display_w;
     }
     if (buttons_vector_.right)
     {
         buttons_vector_.right = false;
         player_.x_ += kSpeed;
+        player_.x_ = player_.x_ % game_t::display_w;
     }
     if (buttons_vector_.cross)
     {
@@ -207,7 +228,7 @@ void game_t::update_player_pos()
 
 void game_t::update_enemy_state(entity_t &enemy)
 {
-    #define kDiff 2
+    #define kVerticalVelocity 2
 
     // update y position
     if (enemy.y_ == enemy.y_target_ ||
@@ -224,24 +245,24 @@ void game_t::update_enemy_state(entity_t &enemy)
         enemy.y_target_ = next_y_target;
 
         if (enemy.y_ > enemy.y_target_) {
-            enemy.vy_ = -2  ;
+            enemy.vy_ = -kVerticalVelocity  ;
         }
         else {
-            enemy.vy_ = 2;
+            enemy.vy_ = kVerticalVelocity;
         }
     }
     else {
         enemy.y_ += enemy.vy_;
     }
 
-    // show info
+    // // show info
     // game_t::monitor_.setFont(u8g2_font_tenthinnerguys_tr);
     // char str[8];
     // sprintf(str, "x= %d", enemy_.x_);
     // game_t::monitor_.drawStr(15, 60, str);
 
     // update shooting
-    if (abs(enemy.y_shoot_target_ - enemy.y_ ) < kDiff)
+    if (abs(enemy.y_shoot_target_ - enemy.y_ ) < kVerticalVelocity)
     {
         shoot(enemy_.x_,
               enemy_.y_ + enemy_.bitmap.h_ / 2,
@@ -257,14 +278,22 @@ void game_t::update_enemy_state(entity_t &enemy)
     }
 
     // update x position
+    #define kHorizontalVelocity 5
+
     static uint8_t old_secs = 0;
     uint8_t new_secs = game_t::gameTimer.getSeconds();
-    if (new_secs != old_secs && !(new_secs % 10)) {
+    if (new_secs != old_secs && !(new_secs % kHorizontalVelocity)) {
         old_secs = new_secs;
         enemy.x_ -= enemy.bitmap.w_;
     }
 
-    #undef kDiff
+    // end game, when enemy reaches left bound
+    if (abs(game_t::enemy_.x_) < player_.bitmap.w_) {
+        game_t::end_game(kDefeat);
+    }
+
+    #undef kHorizontalVelocity
+    #undef kVerticalVelocity
 }
 
 void game_t::update_visual_info_state() {
